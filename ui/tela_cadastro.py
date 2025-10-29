@@ -140,10 +140,7 @@ class TelaCadastro(tk.Frame):
 # --- Exemplo de Execução (Mantido para testes) ---
 
 if __name__ == "__main__":
-    # IMPORTANTE: Você precisa garantir que o módulo 'assets.cores'
-    # contenha as variáveis 'cor_de_fundo', 'cor_destaque', 'cor_botao_registrar'
-    # para que este código funcione corretamente.
-
+    
     try:
         root = tk.Tk()
         root.title("App Futevôlei - Cadastro")
