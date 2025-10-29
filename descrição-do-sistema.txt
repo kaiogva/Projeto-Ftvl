@@ -1,0 +1,41 @@
+📌 Projeto: Sistema de Registro de Alunos – CT de Futevôlei Andrade⚽
+
+1. Descrição do Sistema
+•	O sistema será responsável por gerenciar o cadastro de alunos em um Centro de Treinamento de Futevôlei.
+•	Permitirá registrar informações pessoais (nome, idade, telefone, e-mail).
+•	Controlará os planos de treinamento (mensal, trimestral, semestral).
+•	Permitirá consultar, atualizar e excluir dados de alunos.
+•	O objetivo é organizar os dados de forma digital, substituindo planilhas ou anotações manuais.
+
+2. Requisitos Básicos
+Requisitos Funcionais
+•	Cadastrar novos alunos.
+•	Consultar lista de alunos cadastrados.
+•	Atualizar informações de um aluno.
+•	Excluir cadastro de alunos.
+•	Armazenar dados em um banco SQLite.
+Requisitos Não Funcionais
+•	Sistema desenvolvido em Python.
+•	Banco de dados leve e integrado (SQLite).
+•	Interface inicial em console (linha de comando).
+•	Estrutura simples, mas organizada em funções/módulos.
+
+3. Como Aplicar o Banco de Dados no Sistema (SQLite)
+•	Biblioteca utilizada: sqlite3 (nativa do Python).
+•	Criação de tabela:
+CREATE TABLE alunos (
+    id INTEGER PRIMARY KEY,
+    nome TEXT,
+    idade INTEGER,
+    telefone TEXT,
+    email TEXT,
+    plano TEXT,
+    data_cadastro TEXT NOT NULL
+);
+•	Operações CRUD:
+o	Create → Inserir aluno no banco.
+o	Read → Listar/consultar alunos.
+o	Update → Atualizar dados de um aluno.
+o	Delete → Remover aluno cadastrado.
+•	Integração: cada ação do sistema em Python chamará uma função que executa uma instrução SQL.
+
