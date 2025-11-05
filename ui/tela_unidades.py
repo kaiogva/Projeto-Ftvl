@@ -68,7 +68,7 @@ class TelaUnidades(tk.Frame):
         # ----------------------------------------------------------------------
         # Cartão São Gonçalo
         # ----------------------------------------------------------------------
-        # ALTERAÇÃO: Removendo borda e definindo tamanho fixo
+       
         card_sg = tk.Frame(cards_frame, bg=cor_de_fundo, width=CARD_WIDTH, height=CARD_HEIGHT)
         card_sg.grid(row=0, column=1, padx=20)
         card_sg.pack_propagate(False) # Garante que o Frame mantenha o tamanho fixo

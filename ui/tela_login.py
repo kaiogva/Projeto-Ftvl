@@ -103,10 +103,10 @@ class TelaLogin(tk.Frame):
         sucesso, resultado = db_manager.verificar_login(email, senha)
 
         if sucesso:
-            nome_usuario = resultado
-            messagebox.showinfo("Sucesso", f"Login realizado com sucesso! Bem-vindo(a), {nome_usuario}.")
-            # Se o login for válido, chame a função para mudar de tela
+            self.master.aluno_id = resultado["id"]
+            self.master.nome_aluno = resultado["nome"]  # opcional, para exibir nome depois
             self.mudar_tela("unidades")
+
         else:
             # resultado será a mensagem de erro ("E-mail não encontrado" ou "Senha incorreta")
             messagebox.showerror("Erro de Login", resultado)
