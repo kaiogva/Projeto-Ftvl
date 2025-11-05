@@ -1,77 +1,74 @@
+import sqlite3
 from fpdf import FPDF
-from datetime import datetime
-import os 
+import tkinter as tk
+from tkinter import messagebox
 
-class GeradorPDF(FPDF):
-    """Classe customizada para gerar o relatório de agendamentos."""
-    
-    def header(self):
-        # Título
-        self.set_font('Arial', 'B', 15)
-        self.cell(0, 10, self.encode_str('Relatório de Agendamentos - CT Futevôlei'), 0, 1, 'C') 
-        self.set_font('Arial', '', 10)
-        self.cell(0, 5, self.encode_str(f'Gerado em: {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}'), 0, 1, 'C')
-        self.ln(5)
+# Função para gerar PDF
+def gerar_pdf():
+    # Conecta ao banco
+    conn = sqlite3.connect("ct_futevôlei.db")
+    cursor = conn.cursor()
 
-    def footer(self):
-        # Número da página
-        self.set_y(-15)
-        self.set_font('Arial', 'I', 8)
-        self.cell(0, 10, self.encode_str(f'Página {self.page_no()}'), 0, 0, 'C')
+    # 1. Selecionar TODAS as colunas que serão usadas no PDF.
+    cursor.execute("SELECT id, nome, email, unidade, dia_semana, horario FROM alunos")
+    dados = cursor.fetchall()
+    conn.close()
 
-    def encode_str(self, text):
-        """Codifica o texto para evitar problemas com acentuação no fpdf."""
-        return str(text).encode('latin-1', 'replace').decode('latin-1')
-
-    def print_agendamentos(self, dados, cabecalho):
-        # Larguras ajustadas para os 4 campos: Nome, Unidade, Dia, Horário
-        col_widths = [60, 50, 40, 40] 
-        
-        # Configuração da Fonte e Cor para o CABEÇALHO
-        self.set_font('Arial', 'B', 10)
-        self.set_fill_color(173, 216, 230) 
-        
-        # CABEÇALHO da Tabela
-        for i, header in enumerate(cabecalho):
-            self.cell(col_widths[i], 7, self.encode_str(header), 1, 0, 'C', True)
-        self.ln() 
-        
-        # Linhas da Tabela
-        self.set_font('Arial', '', 10)
-        fill = False 
-        
-        for row in dados:
-            if fill:
-                 self.set_fill_color(240, 240, 240) 
-            else:
-                 self.set_fill_color(255, 255, 255) 
-            
-            for i, data in enumerate(row):
-                self.cell(col_widths[i], 6, self.encode_str(str(data)), 1, 0, 'L', fill)
-            self.ln()
-            
-            fill = not fill 
-
-def gerar_pdf_agendamentos(db_manager):
-    """Função principal para gerar o PDF a partir dos dados do DB."""
-    
-    dados, cabecalho = db_manager.obter_dados_agendamentos_para_pdf()
-    
     if not dados:
-        return False, "Nenhum agendamento encontrado para gerar o relatório."
+        messagebox.showwarning("Aviso", "Nenhum dado encontrado no banco!")
+        return
 
-    pdf = GeradorPDF(orientation='P', unit='mm', format='A4') 
-    pdf.alias_nb_pages()
+    # Cria PDF
+    pdf = FPDF()
     pdf.add_page()
-    
-    pdf.print_agendamentos(dados, cabecalho)
-    
-    # Define o nome do arquivo no diretório atual
-    nome_arquivo = f"relatorio_agendamentos_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-    caminho_completo = os.path.join(os.getcwd(), nome_arquivo)
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(0, 10, "Lista de Usuários", ln=True, align="C")
 
-    try:
-        pdf.output(caminho_completo, 'F') 
-        return True, f"PDF gerado com sucesso!\nArquivo: {nome_arquivo}"
-    except Exception as e:
-        return False, f"Erro ao salvar PDF: {e}"
+    # Cabeçalho da tabela (Ajustando larguras para caber na página A4)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(10, 10, "id".upper(), border=1)
+    pdf.cell(25, 10, "nome".upper(), border=1)
+    pdf.cell(50, 10, "email".upper(), border=1) # Largura ajustada
+    pdf.cell(35, 10, "unidade".upper(), border=1)
+    pdf.cell(15, 10, "dia".upper(), border=1)
+    pdf.cell(23, 10, "horario".upper(), border=1)
+    pdf.ln()
+
+    # Dados da tabela
+    pdf.set_font("Arial", "", 12)
+    for linha in dados:
+        # 2. Corrigindo índices (0 a 5) E tratando o erro 'NoneType' com 'if linha[x] is not None else ""'
+        
+        # O str() é necessário apenas para o id, que é um número.
+        id_seguro = str(linha[0]) if linha[0] is not None else "" 
+        
+        # Demais colunas (Strings)
+        nome_seguro = linha[1] if linha[1] is not None else ""
+        email_seguro = linha[2] if linha[2] is not None else ""
+        unidade_segura = linha[3] if linha[3] is not None else ""
+        dia_semana_seguro = linha[4] if linha[4] is not None else ""
+        horario_seguro = linha[5] if linha[5] is not None else ""
+
+        pdf.cell(10, 10, id_seguro, border=1)
+        pdf.cell(25, 10, nome_seguro, border=1)
+        pdf.cell(50, 10, email_seguro, border=1)
+        pdf.cell(35, 10, unidade_segura, border=1)
+        pdf.cell(15, 10, dia_semana_seguro, border=1)
+        pdf.cell(23, 10, horario_seguro, border=1)
+        
+        pdf.ln()
+
+    # Salva PDF
+    pdf.output("usuarios.pdf")
+    messagebox.showinfo("Sucesso", "PDF gerado com sucesso!")
+
+# Cria interface Tkinter (Mantida)
+root = tk.Tk()
+root.title("Gerar PDF do Banco de Dados")
+root.geometry("300x150")
+
+# Botão
+botao = tk.Button(root, text="Gerar PDF", command=gerar_pdf, font=("Arial", 12), bg="#4CAF50", fg="white")
+botao.pack(pady=40)
+
+root.mainloop()
